@@ -40,13 +40,17 @@ class Topology
     @ports[port.dpid] += [port]
   end
 
+  def add_port_host(packet_in)
+    @ports[packet_in.ipv4_saddr.to_s] += [1]
+  end
+
   def delete_port(port)
     @ports[port.dpid] -= [port]
     delete_link_by port
   end
 
   def add_link_by(dpid, packet_in)
-    fail 'Not an LLDP packet!' unless packet_in.lldp?
+    #fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -61,13 +65,16 @@ class Topology
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    @links.sort!
+    #@links.sort!
   end
 
   def delete_link_by(port)
     @links.each do |each|
       if each.has?(port.dpid, port.number)
         changed
+        if each.dpid_a.class == String
+          @ports.delete each.dpid_a
+        end
         @links -= [each]
       end
     end
