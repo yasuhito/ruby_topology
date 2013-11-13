@@ -38,21 +38,21 @@ module View
       topology.each_link do |each|
         node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
         if node_a && node_b
-          label_option = get_link_label(each)
-          write_edges(node_a, node_b, label_option, is_label)
+          edge_label_option = get_edge_label_option(each)
+          write_edges(node_a, node_b, edge_label_option, is_label)
         end
       end
     end
 
-    def write_edges(node_a, node_b, label_option, is_label)
+    def write_edges(node_a, node_b, edge_label_option, is_label)
       if is_label
-        @graphviz.add_edges(node_a, node_b, label_option)
+        @graphviz.add_edges(node_a, node_b, edge_label_option)
       else
         @graphviz.add_edges(node_a, node_b)
       end
     end
 
-    def get_link_label(link)
+    def get_edge_label_option(link)
       {
         'headlabel' => link.port_a,
         'taillabel' => link.port_b,
