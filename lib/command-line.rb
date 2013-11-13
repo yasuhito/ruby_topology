@@ -12,14 +12,17 @@ class CommandLine
 
   attr_reader :view
   attr_reader :destination_mac
-
+  attr_reader :edge_label
+  
   def initialize
+    @edge_label = false
     @view = View::Text.new
   end
 
   def parse(argv)
     program_desc 'Topology discovery controller'
     set_destination_mac_flag
+    set_edge_label_flag
     define_text_command
     define_graphviz_command
     run argv
@@ -32,6 +35,15 @@ class CommandLine
     pre do |global_options, command, options, args|
       destination_mac = global_options[:destination_mac]
       @destination_mac = Mac.new(destination_mac) if destination_mac
+      true
+    end
+  end
+  
+  def set_edge_label_flag
+    switch [:e, :edge_label], :default_value => false
+    pre do |global_options, command, options, args|
+      edge_label = global_options[:edge_label]
+      @edge_label = true if edge_label
       true
     end
   end
@@ -61,9 +73,9 @@ class CommandLine
   def create_graphviz_view(_global_options, _options, args)
     require 'view/graphviz'
     if args.empty?
-      @view = View::Graphviz.new
+      @view = View::Graphviz.new('./topology.png', @edge_label)
     else
-      @view = View::Graphviz.new(args[0])
+      @view = View::Graphviz.new(args[0], @edge_label)
     end
   end
 end

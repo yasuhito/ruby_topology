@@ -42,8 +42,11 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
-    @topology.add_link_by dpid, packet_in
+    if packet_in.ipv4?
+      @topology.add_host_to_link dpid, packet_in
+    elsif packet_in.lldp?
+      @topology.add_link_by dpid, packet_in
+    end
   end
 
   private

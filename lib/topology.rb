@@ -13,10 +13,12 @@ class Topology
   extend Forwardable
 
   def_delegator :@ports, :each_pair, :each_switch
+  def_delegator :@hosts, :each, :each_host
   def_delegator :@links, :each, :each_link
 
   def initialize(view)
     @ports = Hash.new { [].freeze }
+    @hosts = []
     @links = []
     add_observer view
   end
@@ -56,12 +58,25 @@ class Topology
     notify_observers self
   end
 
+  def add_host_to_link(dpid, packet_in)
+    fail 'Not a IPv4 packet!' unless packet_in.ipv4?
+    unless @hosts.include?(packet_in.ipv4_saddr.to_s)
+       @hosts.push packet_in.ipv4_saddr.to_s
+    end
+    begin
+      maybe_add_link Link.new(dpid, packet_in)
+    rescue
+      return
+    end
+    changed
+    notify_observers self
+  end
+
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    @links.sort!
   end
 
   def delete_link_by(port)
@@ -69,6 +84,9 @@ class Topology
       if each.has?(port.dpid, port.number)
         changed
         @links -= [each]
+        if @hosts.include?(each.dpid_a)
+          @hosts -= [each.dpid_a]
+        end
       end
     end
     notify_observers self
