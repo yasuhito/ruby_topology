@@ -58,11 +58,12 @@ class Topology
     notify_observers self
   end
 
+  def add_host(host_ip_addr)
+    @hosts.push host_ip_addr unless @hosts.include?(host_ip_addr)
+  end
+
   def add_host_to_link(dpid, packet_in)
     fail 'Not a IPv4 packet!' unless packet_in.ipv4?
-    unless @hosts.include?(packet_in.ipv4_saddr.to_s)
-       @hosts.push packet_in.ipv4_saddr.to_s
-    end
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -84,9 +85,7 @@ class Topology
       if each.has?(port.dpid, port.number)
         changed
         @links -= [each]
-        if @hosts.include?(each.dpid_a)
-          @hosts -= [each.dpid_a]
-        end
+        @hosts -= [each.dpid_a] if @hosts.include?(each.dpid_a)
       end
     end
     notify_observers self

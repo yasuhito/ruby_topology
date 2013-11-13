@@ -13,8 +13,7 @@ class Link
 
   def initialize(dpid, packet_in)
     if packet_in.ipv4?
-      ipv4 = packet_in
-      @dpid_a = ipv4.ipv4_saddr.to_s
+      @dpid_a = packet_in.ipv4_saddr.to_s
       @port_a = 0
     elsif packet_in.lldp?
       lldp = Pio::Lldp.read(packet_in.data)
