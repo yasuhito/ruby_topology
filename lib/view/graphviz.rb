@@ -9,7 +9,6 @@ module View
     def initialize(output = './topology.png')
       @nodes = {}
       @output = File.expand_path(output)
-      #@graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
     end
 
     def update(topology)
@@ -27,7 +26,7 @@ module View
         if dpid.class == String
           @nodes[dpid] = @graphviz.add_nodes(dpid, 'shape' => 'ellipse')
         else
-        @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+          @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
         end
       end
     end

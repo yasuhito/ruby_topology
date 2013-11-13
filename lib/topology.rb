@@ -50,7 +50,6 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    #fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -65,16 +64,13 @@ class Topology
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    #@links.sort!
   end
 
   def delete_link_by(port)
     @links.each do |each|
       if each.has?(port.dpid, port.number)
         changed
-        if each.dpid_a.class == String
-          @ports.delete each.dpid_a
-        end
+        @ports.delete each.dpid_a if each.dpid_a.class == String
         @links -= [each]
       end
     end

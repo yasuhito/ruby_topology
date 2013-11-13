@@ -42,10 +42,7 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    #return unless packet_in.lldp? ###
-    if packet_in.ipv4?
-      @topology.add_port_host packet_in
-    end
+    @topology.add_port_host packet_in if packet_in.ipv4?
     @topology.add_link_by dpid, packet_in
   end
 
@@ -53,11 +50,7 @@ class TopologyController < Controller
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
-      if dpid.class == String
-        ## noop
-      else
-      send_lldp dpid, ports
-      end
+      send_lldp dpid, ports unless dpid.class == String
     end
   end
 
@@ -69,7 +62,7 @@ class TopologyController < Controller
         actions: SendOutPort.new(port_number),
         data: lldp_binary_string(dpid, port_number)
       )
-      end
+    end
   end
 
   def lldp_binary_string(dpid, port_number)
