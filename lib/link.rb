@@ -36,7 +36,11 @@ class Link
   end
 
   def to_s
-    format '%#x (port %d) <-> %#x (port %d)', dpid_a, port_a, dpid_b, port_b
+    if dpid_a.class == String
+      format '%#s (port %d) <-> %#x (port %d)', dpid_a, port_a, dpid_b, port_b
+    else
+      format '%#x (port %d) <-> %#x (port %d)', dpid_a, port_a, dpid_b, port_b
+    end
   end
 
   def has?(dpid, port)
