@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 require 'forwardable'
 require 'link'
+require 'host'
 require 'observer'
 require 'trema-extensions/port'
 
@@ -14,10 +15,12 @@ class Topology
 
   def_delegator :@ports, :each_pair, :each_switch
   def_delegator :@links, :each, :each_link
+  def_delegator :@hosts, :each, :each_host
 
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
+    @hosts = []
     add_observer view
   end
 
@@ -52,6 +55,16 @@ class Topology
     unless @links.include?(link)
       @links << link
       @links.sort!
+      changed
+      notify_observers self
+    end
+  end
+
+  def add_host_by(dpid, packet_in)
+    host = Host.new(dpid, packet_in)
+    unless @hosts.include?(host)
+      @hosts << host
+      @hosts.sort!
       changed
       notify_observers self
     end
