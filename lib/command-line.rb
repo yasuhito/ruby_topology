@@ -12,10 +12,10 @@ class CommandLine
 
   attr_reader :view
   attr_reader :destination_mac
-  attr_reader :edge_label
+  attr_reader :port_number
 
   def initialize
-    @edge_label = false
+    @port_number = false
     @view = View::Text.new
   end
 
@@ -31,7 +31,7 @@ class CommandLine
 
   def parse_set_flag
     set_destination_mac_flag
-    set_edge_label_flag
+    set_port_number_flag
   end
 
   def set_destination_mac_flag
@@ -43,11 +43,12 @@ class CommandLine
     end
   end
 
-  def set_edge_label_flag
-    switch [:e, :edge_label]
+  def set_port_number_flag
+    desc 'Show port numbers of edges in Graphviz mode'
+    switch [:p, :port_number]
     pre do |global_options, command, options, args|
-      edge_label = global_options[:edge_label]
-      @edge_label = true if edge_label
+      port_number = global_options[:port_number]
+      @port_number = true if port_number
       true
     end
   end
@@ -77,9 +78,9 @@ class CommandLine
   def create_graphviz_view(_global_options, _options, args)
     require 'view/graphviz'
     if args.empty?
-      @view = View::Graphviz.new('./topology.png', @edge_label)
+      @view = View::Graphviz.new('./topology.png', @port_number)
     else
-      @view = View::Graphviz.new(args[0], @edge_label)
+      @view = View::Graphviz.new(args[0], @port_number)
     end
   end
 end

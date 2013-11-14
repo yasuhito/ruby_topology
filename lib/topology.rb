@@ -85,10 +85,14 @@ class Topology
       if each.has?(port.dpid, port.number)
         changed
         @links -= [each]
-        @hosts -= [each.dpid_a] if @hosts.include?(each.dpid_a)
+        delete_host each.dpid_a
       end
     end
     notify_observers self
+  end
+
+  def delete_host(host_ip_addr)
+    @hosts -= [host_ip_addr] if @hosts.include?(host_ip_addr)
   end
 end
 

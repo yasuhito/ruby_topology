@@ -6,20 +6,22 @@ module View
   # Topology controller's GUI (graphviz).
   #
   class Graphviz
-    LABELDISTANCE = '1.8'
+    # Graphviz options
+    LABELDISTANCE = '1.4'
     FONTSIZE = '10'
+    LABELFONTCOLOR = 'black'
 
-    def initialize(output = './topology.png', is_label = false)
+    def initialize(output = './topology.png', is_port_label = false)
       @nodes = {}
       @output = File.expand_path(output)
-      @is_label = is_label
+      @is_port_label = is_port_label
     end
 
     def update(topology)
       @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
       @nodes.clear
       add_nodes(topology)
-      add_edges(topology, @is_label)
+      add_edges(topology)
       @graphviz.output(png: @output)
     end
 
@@ -34,18 +36,18 @@ module View
       end
     end
 
-    def add_edges(topology, is_label)
+    def add_edges(topology)
       topology.each_link do |each|
         node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
         if node_a && node_b
           edge_label_option = get_edge_label_option(each)
-          write_edges(node_a, node_b, edge_label_option, is_label)
+          write_edges(node_a, node_b, edge_label_option)
         end
       end
     end
 
-    def write_edges(node_a, node_b, edge_label_option, is_label)
-      if is_label
+    def write_edges(node_a, node_b, edge_label_option)
+      if @is_port_label
         @graphviz.add_edges(node_a, node_b, edge_label_option)
       else
         @graphviz.add_edges(node_a, node_b)
@@ -54,10 +56,11 @@ module View
 
     def get_edge_label_option(link)
       {
-        'headlabel' => link.port_a,
-        'taillabel' => link.port_b,
+        'headlabel' => link.port_b,
+        'taillabel' => link.port_a,
         'labeldistance' => LABELDISTANCE,
-        'fontsize' => FONTSIZE
+        'fontsize' => FONTSIZE,
+        'labelfontcolor' => LABELFONTCOLOR
       }
     end
   end
