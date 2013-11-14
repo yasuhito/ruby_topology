@@ -21,7 +21,7 @@ class CommandLine
 
   def parse(argv)
     program_desc 'Topology discovery controller'
-    parse_set_flag
+    parse_set_flag_and_switch
     define_text_command
     define_graphviz_command
     run argv
@@ -29,9 +29,9 @@ class CommandLine
 
   private
 
-  def parse_set_flag
+  def parse_set_flag_and_switch
     set_destination_mac_flag
-    set_port_number_flag
+    set_port_number_switch
   end
 
   def set_destination_mac_flag
@@ -43,7 +43,7 @@ class CommandLine
     end
   end
 
-  def set_port_number_flag
+  def set_port_number_switch
     desc 'Show port numbers of edges in Graphviz mode'
     switch [:p, :port_number]
     pre do |global_options, command, options, args|
