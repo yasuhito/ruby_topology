@@ -19,7 +19,7 @@ class Link
     	@port_a = lldp.port_number
     	@port_b = packet_in.in_port
 		elsif packet_in.ipv4?
-	    @dpid_a = packet_in.ipv4_saddr.to_s
+	    @dpid_a = packet_in.ipv4_saddr
   	  @dpid_b = dpid
  		  @port_a = 10000
   	  @port_b = packet_in.in_port

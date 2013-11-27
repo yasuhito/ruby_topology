@@ -60,7 +60,7 @@ class Topology
 
 	def add_host(dpid, packet_in)
 		ip = packet_in.ipv4_saddr.to_s
-		@hosts[ip] = 10000 unless is_all_zero_addr(ip)
+		@hosts[ip] = 10000 unless is_all_zero_addr
 	end
 
 

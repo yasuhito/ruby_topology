@@ -15,6 +15,7 @@ module View
       @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
       @nodes.clear
       add_nodes(topology)
+			add_hosts(topology)
       add_edges(topology)
       @graphviz.output(png: @output)
     end
@@ -29,6 +30,10 @@ module View
         @nodes[host] = @graphviz.add_nodes(host, 'shape' => 'oval')
       end
     end
+
+		def add_hosts(topology)
+
+		end
 
     def add_edges(topology)
       topology.each_link do |each|
