@@ -46,7 +46,7 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    fail 'Not an LLDP packet!' unless packet_in.lldp?
+    #fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -56,11 +56,18 @@ class Topology
     notify_observers self
   end
 
+  def add_host(dpid, packet_in)
+   @ports[packet_in.ipv4_saddr] += [packet_in.ipv4_saddr]
+   changed
+   notify_observers self
+  end
+
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
+    #puts link.dpid_a.to_s + "<-->" + link.dpid_b.to_s
     @links.sort!
   end
 
