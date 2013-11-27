@@ -4,20 +4,18 @@ require 'link'
 require 'observer'
 require 'trema-extensions/port'
 
-#
-# Topology information containing the list of known switches, ports,
-# and links.
-#
 class Topology
   include Observable
   extend Forwardable
 
   def_delegator :@ports, :each_pair, :each_switch
   def_delegator :@links, :each, :each_link
+  def_delegator :@hosts, :each_pair, :each_host
 
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
+		@hosts = {}
     add_observer view
   end
 
@@ -46,7 +44,6 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -56,12 +53,17 @@ class Topology
     notify_observers self
   end
 
+	def add_host(dpid, packet_in)
+		ip = packet_in.ipv4_saddr.to_s
+		@hosts[ip] = 10000 unless is_all_zero_addr(ip)
+	end
+
+
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    @links.sort!
   end
 
   def delete_link_by(port)
@@ -73,6 +75,15 @@ class Topology
     end
     notify_observers self
   end
+
+	def is_all_zero_addr ip
+		bit = ip.split(".")
+		if (bit[0].to_i == 0)&&(bit[1].to_i == 0)&&(bit[2].to_i == 0)&&(bit[3].to_i == 0)
+			return true
+		else
+			return false
+		end
+	end
 end
 
 ### Local variables:

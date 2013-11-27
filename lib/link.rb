@@ -2,9 +2,6 @@
 require 'rubygems'
 require 'pio/lldp'
 
-#
-# Edges between two switches.
-#
 class Link
   attr_reader :dpid_a
   attr_reader :dpid_b
@@ -12,11 +9,19 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-    lldp = Pio::Lldp.read(packet_in.data)
-    @dpid_a = lldp.dpid
-    @dpid_b = dpid
-    @port_a = lldp.port_number
-    @port_b = packet_in.in_port
+		if packet_in.lldp?
+	    lldp = Pio::Lldp.read(packet_in.data)
+      idport_update(lldp.dpid,dpid,lldp.port_number,packet_in.in_port)
+		elsif packet_in.ipv4?
+      idport_update(packet_in.ipv4_saddr.to_s,dpid,10000,packet_in.in_port)
+		end
+  end
+
+  def idport_update dpid_a,dpid_b,port_a,port_b
+    	@dpid_a = dpid_a
+    	@dpid_b = dpid_b
+    	@port_a = port_a
+    	@port_b = port_b
   end
 
   def ==(other)
