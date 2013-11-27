@@ -9,9 +9,6 @@ require 'topology'
 require 'trema'
 require 'trema-extensions/port'
 
-#
-# This controller collects network topology information using LLDP.
-#
 class TopologyController < Controller
   periodic_timer_event :flood_lldp_frames, 1
 
@@ -42,7 +39,11 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
+
+		if packet_in.ipv4?
+			@topology.add_host dpid, packet_in
+		end
+
     @topology.add_link_by dpid, packet_in
   end
 
