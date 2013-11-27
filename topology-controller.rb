@@ -44,7 +44,6 @@ class TopologyController < Controller
   def packet_in(dpid, packet_in)
    if packet_in.ipv4? && (packet_in.ipv4_saddr.to_s != "0.0.0.0")
      @topology.add_host dpid, packet_in
-     #puts "ip_addr : " + packet_in.ipv4_saddr.to_s
    end
    @topology.add_link_by dpid, packet_in
   end

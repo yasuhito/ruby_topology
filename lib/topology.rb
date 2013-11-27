@@ -46,7 +46,6 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    #fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -67,7 +66,6 @@ class Topology
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    #puts link.dpid_a.to_s + "<-->" + link.dpid_b.to_s
     @links.sort!
   end
 

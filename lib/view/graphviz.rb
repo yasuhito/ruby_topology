@@ -33,11 +33,7 @@ module View
 
     def add_edges(topology)
       topology.each_link do |each|
-        if each.dpid_a.class == Fixnum
-          node_a = @nodes[each.dpid_a]
-        else
-          node_a = @nodes[each.dpid_a.to_s]
-        end
+        each.dpid_a.class == Fixnum ? node_a = @nodes[each.dpid_a] : node_a = @nodes[each.dpid_a.to_s]
         node_b = @nodes[each.dpid_b]
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
