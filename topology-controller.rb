@@ -26,8 +26,8 @@ class TopologyController < Controller
   end
 
   def features_reply(dpid, features_reply)
-    features_reply.physical_ports.select(&:up?).each do | each |
-      @topology.add_port dpid, each
+    features_reply.physical_ports.select(&:up?).each do |each|
+      @topology.add_port each
     end
   end
 
@@ -38,31 +38,37 @@ class TopologyController < Controller
   def port_status(dpid, port_status)
     updated_port = port_status.port
     return if updated_port.local?
-    @topology.update_port dpid, updated_port
+    @topology.update_port updated_port
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
+    if packet_in.ipv4?
+      if(packet_in.ipv4_saddr.to_s != "0.0.0.0")
+        @topology.add_port_host packet_in
+      end
+    end
     @topology.add_link_by dpid, packet_in
   end
 
   private
 
   def flood_lldp_frames
-    @topology.each_switch do | dpid, ports |
-      send_lldp dpid, ports
+    @topology.each_switch do |dpid, ports|
+      if dpid.class != String
+        send_lldp dpid, ports
+      end
     end
   end
 
   def send_lldp(dpid, ports)
-    ports.each do | each |
+    ports.each do |each|
       port_number = each.number
       send_packet_out(
         dpid,
         actions: SendOutPort.new(port_number),
         data: lldp_binary_string(dpid, port_number)
       )
-    end
+      end
   end
 
   def lldp_binary_string(dpid, port_number)

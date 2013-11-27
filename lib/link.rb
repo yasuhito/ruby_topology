@@ -6,24 +6,31 @@ require 'pio/lldp'
 # Edges between two switches.
 #
 class Link
-  attr_reader :dpid1
-  attr_reader :dpid2
-  attr_reader :port1
-  attr_reader :port2
+  attr_reader :dpid_a
+  attr_reader :dpid_b
+  attr_reader :port_a
+  attr_reader :port_b
 
   def initialize(dpid, packet_in)
-    lldp = Pio::Lldp.read(packet_in.data)
-    @dpid1 = lldp.dpid
-    @dpid2 = dpid
-    @port1 = lldp.port_number
-    @port2 = packet_in.in_port
+    #lldp = Pio::Lldp.read(packet_in.data)
+    if packet_in.lldp?
+      lldp = Pio::Lldp.read(packet_in.data)
+      flag = true
+    elsif packet_in.ipv4?
+      lldp = packet_in
+      flag = false
+    end
+    @dpid_a = flag ? lldp.dpid : lldp.ipv4_saddr.to_s
+    @dpid_b = dpid
+    @port_a = flag ? lldp.port_number : 1
+    @port_b = packet_in.in_port
   end
 
   def ==(other)
-    (@dpid1 == other.dpid1) &&
-      (@dpid2 == other.dpid2) &&
-      (@port1 == other.port1) &&
-      (@port2 == other.port2)
+    (@dpid_a == other.dpid_a) &&
+      (@dpid_b == other.dpid_b) &&
+      (@port_a == other.port_a) &&
+      (@port_b == other.port_b)
   end
 
   def <=>(other)
@@ -31,12 +38,12 @@ class Link
   end
 
   def to_s
-    format '%#x (port %d) <-> %#x (port %d)', dpid1, port1, dpid2, port2
+    format '%#x (port %d) <-> %#x (port %d)', dpid_a, port_a, dpid_b, port_b
   end
 
   def has?(dpid, port)
-    ((@dpid1 == dpid) && (@port1 == port)) ||
-      ((@dpid2 == dpid) && (@port2 == port))
+    ((@dpid_a == dpid) && (@port_a == port)) ||
+      ((@dpid_b == dpid) && (@port_b == port))
   end
 end
 
