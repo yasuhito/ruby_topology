@@ -23,22 +23,33 @@ module View
 
     def add_nodes(topology)
       topology.each_switch do |dpid, ports|
-       if dpid.class == Fixnum
-         @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
-       else
-         @nodes[dpid.to_s] = @graphviz.add_nodes(dpid.to_s, 'shape' => 'ellipse')
-       end
+        if dpid.class == Fixnum
+          @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+        else
+          ip_addr = dpid.to_s
+          @nodes[ip_addr] = @graphviz.add_nodes(ip_addr, 'shape' => 'ellipse')
+        end
       end
     end
 
     def add_edges(topology)
       topology.each_link do |each|
-        each.dpid_a.class == Fixnum ? node_a = @nodes[each.dpid_a] : node_a = @nodes[each.dpid_a.to_s]
+        dpid = each.dpid_a
+        node_a = get_node_a dpid
         node_b = @nodes[each.dpid_b]
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
     end
 
+    private
+
+    def get_node_a(dpid)
+      if dpid.class == Fixnum
+        return @nodes[dpid]
+      else
+        return @nodes[dpid.to_s]
+      end
+    end
   end
 end
 
