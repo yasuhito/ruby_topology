@@ -10,6 +10,8 @@ require 'trema'
 require 'trema-extensions/port'
 
 #
+require 'Dijkstra'
+#
 # This controller collects network topology information using LLDP.
 #
 class TopologyController < Controller
@@ -19,6 +21,8 @@ class TopologyController < Controller
     @command_line = CommandLine.new
     @command_line.parse(ARGV.dup)
     @topology = Topology.new(@command_line.view)
+    #
+    @dijkstra = Dijkstra.new
   end
 
   def switch_ready(dpid)
@@ -26,8 +30,8 @@ class TopologyController < Controller
   end
 
   def features_reply(dpid, features_reply)
-    features_reply.physical_ports.select(&:up?).each do | each |
-      @topology.add_port dpid, each
+    features_reply.physical_ports.select(&:up?).each do |each|
+      @topology.add_port each
     end
   end
 
@@ -38,24 +42,36 @@ class TopologyController < Controller
   def port_status(dpid, port_status)
     updated_port = port_status.port
     return if updated_port.local?
-    @topology.update_port dpid, updated_port
+    @topology.update_port updated_port
   end
 
+=begin
   def packet_in(dpid, packet_in)
     return unless packet_in.lldp?
     @topology.add_link_by dpid, packet_in
+  end
+=end
+
+  def packet_in(dpid, packet_in)
+   if packet_in.ipv4? && (packet_in.ipv4_saddr.to_s != "0.0.0.0")
+     @topology.add_host dpid, packet_in
+     puts "ip_addr : " + packet_in.ipv4_saddr.to_s
+   end
+   @topology.add_link_by dpid, packet_in
   end
 
   private
 
   def flood_lldp_frames
-    @topology.each_switch do | dpid, ports |
+    @topology.each_switch do |dpid, ports|
+     if dpid.class == Fixnum
       send_lldp dpid, ports
+     end
     end
   end
 
   def send_lldp(dpid, ports)
-    ports.each do | each |
+    ports.each do |each|
       port_number = each.number
       send_packet_out(
         dpid,

@@ -18,11 +18,13 @@ class Link
      @dpid_b = dpid
      @port_a = lldp.port_number
      @port_b = packet_in.in_port
+     puts packet_in.eth_type.to_hex
     else 
      @dpid_a = packet_in.ipv4_saddr
      @dpid_b = dpid
      @port_a = 1
      @port_b = packet_in.in_port
+     puts packet_in.eth_type.to_hex
     end
   end
 
