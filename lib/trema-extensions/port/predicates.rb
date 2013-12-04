@@ -1,14 +1,16 @@
-require "trema"
-
+# -*- coding: utf-8 -*-
+require 'trema'
 
 module TremaExtensions
+  #
+  # Monkey patches for Trema::Port.
+  #
   module Port
     def local?
       number == Trema::Controller::OFPP_LOCAL
     end
   end
 end
-
 
 ### Local variables:
 ### mode: Ruby
