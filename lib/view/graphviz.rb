@@ -38,7 +38,7 @@ module View
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
     end
-    
+
     def add_hosts(topology)
       topology.each_host do |each|
         @hosts[@num_host] = @graphviz.add_nodes(each.ip_b, 'shape' => 'box')

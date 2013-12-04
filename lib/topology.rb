@@ -92,7 +92,7 @@ class Topology
     end
     notify_observers self
   end
-  
+
   def delete_host_by(port)
     @hosts.each do |each|
       if each.has?(port.dpid, port.number)
