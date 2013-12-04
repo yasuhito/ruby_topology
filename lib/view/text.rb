@@ -12,9 +12,6 @@ module View
       topology.each_link do | each |
         info each.to_s
       end
-      topology.each_host do | each |
-        info each.to_s
-      end
       info 'topology updated'
     end
   end
