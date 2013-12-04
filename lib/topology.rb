@@ -4,6 +4,10 @@ require 'link'
 require 'observer'
 require 'trema-extensions/port'
 
+#
+# Topology information containing the list of known switches, ports,
+# and links.
+#
 class Topology
   include Observable
   extend Forwardable
@@ -15,7 +19,7 @@ class Topology
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
-		@hosts = {}
+    @hosts = {}
     add_observer view
   end
 
@@ -53,11 +57,10 @@ class Topology
     notify_observers self
   end
 
-	def add_host(dpid, packet_in)
-		ip = packet_in.ipv4_saddr.to_s
-		@hosts[ip] = 10000 unless is_all_zero_addr(ip)
-	end
-
+  def add_host(dpid, packet_in)
+    ip = packet_in.ipv4_saddr.to_s
+    @hosts[ip] = 10_000 unless is_all_zero_addr(ip)
+  end
 
   private
 
@@ -76,14 +79,18 @@ class Topology
     notify_observers self
   end
 
-	def is_all_zero_addr ip
-		bit = ip.split(".")
-		if (bit[0].to_i == 0)&&(bit[1].to_i == 0)&&(bit[2].to_i == 0)&&(bit[3].to_i == 0)
-			return true
-		else
-			return false
-		end
-	end
+  def is_all_zero_addr(ip)
+    bit = ip.split('.')
+    if (bit[0].to_i == 0) && (bit[1].to_i == 0)
+      if (bit[2].to_i == 0) && (bit[3].to_i == 0)
+        return true
+      elsif
+        return false
+      end
+    else
+      return false
+    end
+  end
 end
 
 ### Local variables:
