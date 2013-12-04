@@ -23,17 +23,22 @@ module View
 
     def add_nodes(topology)
       topology.each_switch do |dpid, ports|
+<<<<<<< HEAD
        if dpid.class == Fixnum
          @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
        else
          s = dpid.to_s.sub(".","0")
          @nodes[s] = @graphviz.add_nodes(dpid.to_s, 'shape' => 'ellipse')
        end
+=======
+        @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
       end
     end
 
     def add_edges(topology)
       topology.each_link do |each|
+<<<<<<< HEAD
         #puts each.dpid_a.to_s + "--" + each.dpid_b.to_s
 
        if each.dpid_a.class == Fixnum
@@ -44,6 +49,9 @@ module View
        end
          #puts node_a.to_s + "--" + node_b.to_s
 
+=======
+        node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
     end

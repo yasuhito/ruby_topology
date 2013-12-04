@@ -64,7 +64,10 @@ class TopologyController < Controller
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
+<<<<<<< HEAD
      if dpid.class == Fixnum
+=======
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
       send_lldp dpid, ports
      end
     end

@@ -46,7 +46,11 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
+<<<<<<< HEAD
     #fail 'Not an LLDP packet!' unless packet_in.lldp?
+=======
+    fail 'Not an LLDP packet!' unless packet_in.lldp?
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -54,12 +58,15 @@ class Topology
     end
     changed
     notify_observers self
+<<<<<<< HEAD
   end
 
   def add_host(dpid, packet_in)
    @ports[packet_in.ipv4_saddr] += [packet_in.ipv4_saddr]
    changed
    notify_observers self
+=======
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
   end
 
   private
