@@ -2,7 +2,9 @@
 require 'graphviz'
 
 module View
-
+  #
+  # Topology controller's GUI (graphviz).
+  #
   class Graphviz
     def initialize(output = './topology.png')
       @nodes = {}
@@ -26,7 +28,8 @@ module View
     def add_nodes(topology)
       topology.each_switch do |dpid, ports|
         @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
-			end
+      end
+
       topology.each_host do |host, ports|
         @nodes[host] = @graphviz.add_nodes(host, 'shape' => 'oval')
       end
