@@ -19,7 +19,7 @@ class Topology
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
-		@hosts = {}
+    @hosts = {}
     add_observer view
   end
 
@@ -58,18 +58,16 @@ class Topology
     notify_observers self
   end
 
-	def add_host(dpid, packet_in)
-		ip = packet_in.ipv4_saddr.to_s
-		@hosts[ip] = 10000 unless is_all_zero_addr(ip)
-	end
-
+  def add_host(dpid, packet_in)
+    ip = packet_in.ipv4_saddr.to_s
+    @hosts[ip] = 10_000 unless is_allzero(ip)
+  end
 
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-#    @links.sort!
   end
 
   def delete_link_by(port)
@@ -82,14 +80,19 @@ class Topology
     notify_observers self
   end
 
-	def is_all_zero_addr ip
-		bit = ip.split(".")
-		if (bit[0].to_i == 0)&&(bit[1].to_i == 0)&&(bit[2].to_i == 0)&&(bit[3].to_i == 0)
-			return true
-		else
-			return false
-		end
-	end
+  def is_allzero(ip)
+    bit = ip.split('.')
+    b1 = (bit[0].to_i == 0)
+    b2 = (bit[1].to_i == 0)
+    b3 = (bit[2].to_i == 0)
+    b4 = (bit[3].to_i == 0)
+    if b1 && b2 && b3 && b4
+      return true
+    else
+      return false
+    end
+  end
+
 end
 
 ### Local variables:
@@ -97,4 +100,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-
