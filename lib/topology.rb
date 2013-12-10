@@ -51,7 +51,6 @@ class Topology
     link = Link.new(dpid, packet_in)
     unless @links.include?(link)
       @links << link
-      #@links.sort!
       changed
       notify_observers self
     end
@@ -59,7 +58,6 @@ class Topology
 
   def add_host_by(dpid, packet_in)
     fail 'Not an IPv4 packet..' unless packet_in.ipv4?
-    
     host_ip = packet_in.ipv4_saddr.to_s
     @hosts << host_ip unless @hosts.include?(host_ip)
   end

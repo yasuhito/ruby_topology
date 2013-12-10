@@ -51,7 +51,7 @@ class Topology
     link = Link.new(dpid, packet_in)
     unless @links.include?(link)
       @links << link
-      @links.sort!
+      #@links.sort!
       changed
       notify_observers self
     end

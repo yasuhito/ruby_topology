@@ -13,7 +13,7 @@ class Link
 
   def initialize(dpid, packet_in)
     if packet_in.lldp?
-      init_lldp(dpid, packet_in) 
+      init_lldp(dpid, packet_in)
     elsif packet_in.ipv4?
       init_ipv4(dpid, packet_in)
     end
@@ -52,11 +52,9 @@ class Link
   def init_ipv4(dpid, packet_in)
     @dpid1 = packet_in.ipv4_saddr.to_s
     @dpid2 = dpid
-    @port1 = "host"
+    @port1 = 'host'
     @port2 = packet_in.in_port
-    p "yay!"
   end
-
 end
 
 ### Local variables:
