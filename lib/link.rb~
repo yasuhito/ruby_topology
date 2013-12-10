@@ -50,7 +50,7 @@ class Link
   end
 
   def init_ipv4(dpid, packet_in)
-    @dpid1 = packet_in.ipv4_saddr.to_s
+    @dpid1 = packet_in.ipv4_sadddr.to_s
     @dpid2 = dpid
     @port1 = "host"
     @port2 = packet_in.in_port
