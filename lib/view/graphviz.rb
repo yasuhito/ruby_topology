@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 require 'graphviz'
 
 module View
@@ -36,7 +36,8 @@ module View
 				if each.dpid_a.class == Fixnum
         	node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
 				else
-        	node_a, node_b = @nodes[each.dpid_a.to_s], @nodes[each.dpid_b]
+					tmp = each.dpid_a.to_s
+        	node_a, node_b = @nodes[tmp], @nodes[each.dpid_b]
 				end
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
