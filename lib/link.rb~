@@ -12,7 +12,6 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-=begin
 #<<<<<<< HEAD
 		if packet_in.lldp?
 	    lldp = Pio::Lldp.read(packet_in.data)
@@ -26,14 +25,13 @@ class Link
  		  @port_a = 10000
   	  @port_b = packet_in.in_port
 		end
-=end
-
-      lldp = Pio::Lldp.read(packet_in.data)
-      @dpid_a = lldp.dpid
-      @dpid_b = dpid
-      @port_a = lldp.port_number
-      @port_b = packet_in.in_port
-
+#=======
+#    lldp = Pio::Lldp.read(packet_in.data)
+#    @dpid_a = lldp.dpid
+#    @dpid_b = dpid
+#    @port_a = lldp.port_number
+#    @port_b = packet_in.in_port
+#>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
   end
 
   def ==(other)
