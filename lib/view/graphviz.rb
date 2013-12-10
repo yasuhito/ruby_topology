@@ -9,10 +9,14 @@ module View
     def initialize(output = './topology.png')
       @nodes = {}
       @output = File.expand_path(output)
+      @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
     end
 
     def update(topology)
+<<<<<<< HEAD
       @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
+=======
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
       @nodes.clear
       add_nodes(topology)
       add_edges(topology)
@@ -24,9 +28,16 @@ module View
     def add_nodes(topology)
       topology.each_switch do |dpid, ports|
         @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+<<<<<<< HEAD
       end
+=======
+<<<<<<< HEAD
+			end
+>>>>>>> origin/master
       topology.each_host do |host, ports|
         @nodes[host] = @graphviz.add_nodes(host, 'shape' => 'oval')
+=======
+>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
       end
     end
 

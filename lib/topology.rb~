@@ -19,7 +19,11 @@ class Topology
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
+<<<<<<< HEAD
     @hosts = {}
+=======
+		@hosts = {}
+>>>>>>> origin/master
     add_observer view
   end
 
@@ -48,6 +52,11 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
+<<<<<<< HEAD
+=======
+
+    fail 'Not an LLDP packet!' unless packet_in.lldp?
+>>>>>>> origin/master
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -57,17 +66,33 @@ class Topology
     notify_observers self
   end
 
+<<<<<<< HEAD
   def add_host(dpid, packet_in)
     ip = packet_in.ipv4_saddr.to_s
     @hosts[ip] = 100_00 unless is_all_zero_addr(ip)
   end
+=======
+	def add_host(dpid, packet_in)
+		ip = packet_in.ipv4_saddr.to_s
+		@hosts[ip] = 10000 unless is_all_zero_addr(ip)
+	end
+
+>>>>>>> origin/master
 
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
+<<<<<<< HEAD
 #    @links.sort!
+=======
+#<<<<<<< HEAD
+    @links.sort!
+#=======
+#    @links.sort!
+#>>>>>>> 54b93a0a43d83e6190788d3e8bc28f2991be3131
+>>>>>>> origin/master
   end
 
   def delete_link_by(port)
@@ -80,6 +105,7 @@ class Topology
     notify_observers self
   end
 
+<<<<<<< HEAD
   def is_all_zero_addr(ip)
     bit = ip.split('.')
     if (bit[0].to_i == 0) && (bit[1].to_i == 0) &&
@@ -89,6 +115,16 @@ class Topology
       return false
     end
   end
+=======
+	def is_all_zero_addr ip
+		bit = ip.split(".")
+		if (bit[0].to_i == 0)&&(bit[1].to_i == 0)&&(bit[2].to_i == 0)&&(bit[3].to_i == 0)
+			return true
+		else
+			return false
+		end
+	end
+>>>>>>> origin/master
 end
 
 ### Local variables:
