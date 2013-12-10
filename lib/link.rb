@@ -12,13 +12,13 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-		if packet_in.lldp? 
+		if !packet_in.ipv4? || (ip_addr.to_s == '0.0.0.0') 
 			lldp = Pio::Lldp.read(packet_in.data)
 			@dpid_a = lldp.dpid
 			@dpid_b = dpid
 			@port_a = lldp.port_number
 			@port_b = packet_in.in_port
-		elsif packet_in.ipv4?
+		else 
 			@dpid_a = packet_in.ipv4_saddr
 			@dpid_b = dpid
 			@port_a = 1

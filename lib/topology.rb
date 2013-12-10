@@ -67,7 +67,7 @@ class Topology
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-#    @links.sort!
+    @links.sort!
   end
 
   def delete_link_by(port)
