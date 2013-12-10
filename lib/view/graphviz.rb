@@ -23,19 +23,28 @@ module View
 
     def add_nodes(topology)
       topology.each_switch do |dpid, ports|
-        @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+        if dpid.class == Fixnum
+          @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+        else
+          s = dpid.to_s.sub('.', '0')
+          @nodes[s] = @graphviz.add_nodes(dpid.to_s, 'shape' => 'ellipse')
+        end
       end
     end
 
     def add_edges(topology)
       topology.each_link do |each|
-        node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
+        if each.dpid_a.class == Fixnum
+          node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
+        else
+          s = each.dpid_a.to_s.sub('.', '0')
+          node_a, node_b = @nodes[s], @nodes[each.dpid_b]
+        end
         @graphviz.add_edges node_a, node_b if node_a && node_b
       end
     end
   end
 end
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
