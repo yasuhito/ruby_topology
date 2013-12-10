@@ -12,7 +12,6 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-    #lldp = Pio::Lldp.read(packet_in.data)
     if packet_in.lldp?
       lldp = Pio::Lldp.read(packet_in.data)
       flag = true

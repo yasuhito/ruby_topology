@@ -50,7 +50,6 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    #fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
