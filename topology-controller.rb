@@ -10,6 +10,9 @@ require 'trema'
 require 'trema-extensions/port'
 
 #
+require 'Dijkstra'
+require 'set'
+#
 # This controller collects network topology information using LLDP.
 #
 class TopologyController < Controller
@@ -19,6 +22,9 @@ class TopologyController < Controller
     @command_line = CommandLine.new
     @command_line.parse(ARGV.dup)
     @topology = Topology.new(@command_line.view)
+    #
+    @dijkstra = Dijkstra.new
+
   end
 
   def switch_ready(dpid)
@@ -41,8 +47,49 @@ class TopologyController < Controller
     @topology.update_port updated_port
   end
 
+=begin
   def packet_in(dpid, packet_in)
     return unless packet_in.lldp?
+    @topology.add_link_by dpid, packet_in
+  end
+=end
+
+  def packet_in(dpid, packet_in)
+   if packet_in.ipv4? && (packet_in.ipv4_saddr.to_s != "0.0.0.0")
+     @topology.add_host dpid, packet_in
+
+     de_sw = search_node packet_in.ipv4_daddr, @topology
+     de_port = search_ip_port packet_in.ipv4_daddr, @topology
+
+     path = @dijkstra.shortest_path dpid, packet_in, @topology
+     if !(path == nil)
+       send_flow_mod_add(
+                         de_sw,
+                         :match => Match.new(:dl_type => 0x800,
+                                             :dl_dst => packet_in.macda,
+                                             :nw_dst => packet_in.ipv4_daddr), 
+                         :actions => Trema::SendOutPort.new(de_port))
+
+       sw = de_sw
+       while !(path[sw] == 0) do
+         nxt = sw
+         sw = path[sw]
+         port = search_port sw, nxt, @topology 
+         send_flow_mod_add(
+                           sw,
+                           :match => Match.new(:dl_type => 0x800,
+                                               :dl_dst => packet_in.macda,
+                                               :nw_dst => packet_in.ipv4_daddr), 
+                           :actions => Trema::SendOutPort.new(port))
+       end
+
+       send_packet_out(
+                       de_sw,
+                       :packet_in => packet_in,
+                       :actions => Trema::SendOutPort.new(de_port))
+     end
+
+   end
     @topology.add_link_by dpid, packet_in
   end
 
@@ -50,7 +97,9 @@ class TopologyController < Controller
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
+     if dpid.class == Fixnum
       send_lldp dpid, ports
+     end
     end
   end
 
@@ -75,6 +124,33 @@ class TopologyController < Controller
       Pio::Lldp.new(dpid: dpid, port_number: port_number).to_binary
     end
   end
+
+  def search_port src, dest, topology
+    topology.each_link do |each|
+      if ((each.dpid_a.to_s == dest.to_s) && (each.dpid_b.to_s == src.to_s))
+        return each.port_b
+      end
+    end
+  end
+
+
+  def search_ip_port dpid, topology
+    topology.each_link do |each|
+      if each.dpid_a.to_s == dpid.to_s
+        return each.port_b
+      end
+    end
+  end
+
+
+  def search_node dpid, topology
+    topology.each_link do |each|
+      if each.dpid_a.to_s == dpid.to_s
+        return each.dpid_b
+      end
+    end
+  end
+
 end
 
 ### Local variables:
