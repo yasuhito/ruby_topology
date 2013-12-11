@@ -47,6 +47,8 @@ class TopologyController < Controller
       @topology.add_link_by dpid, packet_in
     elsif packet_in.ipv4?
       return if packet_in.ipv4_saddr.to_s == '0.0.0.0'
+#      return
+#     end
       if @host_list[packet_in.ipv4_saddr.to_s].nil?
         @host_list[packet_in.ipv4_saddr.to_s] = dpid
         @topology.add_host dpid, packet_in

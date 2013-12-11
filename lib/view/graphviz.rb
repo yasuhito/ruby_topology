@@ -25,6 +25,9 @@ module View
       topology.each_switch do |dpid, ports|
         @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
       end
+      topology.each_host do |host, ports|
+        @nodes[host] = @graphviz.add_nodes(host, 'shape' => 'oval')
+      end
     end
 
     def add_edges(topology)
