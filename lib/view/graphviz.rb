@@ -7,30 +7,45 @@ module View
   #
   class Graphviz
     def initialize(output = './topology.png')
-      @nodes = {}
       @output = File.expand_path(output)
-      @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
     end
 
     def update(topology)
-      @nodes.clear
-      add_nodes(topology)
-      add_edges(topology)
-      @graphviz.output(png: @output)
+      graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
+      nodes = add_nodes(graphviz, topology)
+      add_edges(graphviz, topology, nodes)
+      add_hosts(graphviz, topology, nodes)
+      graphviz.output(png: @output)
     end
 
     private
 
-    def add_nodes(topology)
+    def add_nodes(graphviz, topology)
+      switch = {}
       topology.each_switch do |dpid, ports|
-        @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+        switch[dpid] = graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+      end
+      switch
+    end
+
+    def add_edges(graphviz, topology, switch)
+      topology.each_link do |each|
+        if switch[each.dpid1] && switch[each.dpid2]
+          graphviz.add_edges switch[each.dpid1], switch[each.dpid2]
+        end
       end
     end
 
-    def add_edges(topology)
-      topology.each_link do |each|
-        node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
-        @graphviz.add_edges node_a, node_b if node_a && node_b
+    def add_hosts(graphviz, topology, switch)
+      host = {}
+      topology.each_host do |each|
+        host[each.ipaddr2.to_s] = graphviz.add_nodes(each.ipaddr2.to_s)
+      end
+      host
+      topology.each_host do |each|
+        if switch[each.dpid1]
+          graphviz.add_edges switch[each.dpid1], host[each.ipaddr2.to_s]
+        end
       end
     end
   end
