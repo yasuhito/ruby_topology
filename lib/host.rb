@@ -5,7 +5,7 @@ require 'pio/lldp'
 #
 # Edges between host and switch.
 #
-class Host 
+class Host
   attr_reader :dpid1
   attr_reader :port1
   attr_reader :ipaddr2
@@ -22,7 +22,7 @@ class Host
     (@dpid1 == other.dpid1) &&
       (@port1 == other.port1) &&
       (@ipaddr2.to_s == other.ipaddr2.to_s) &&
-      (@mac2.to_s == other.mac2.to_s) 
+      (@mac2.to_s == other.mac2.to_s)
   end
 
   def <=>(other)
@@ -33,10 +33,6 @@ class Host
     format '%#x (port %d) <-> (host %s)', dpid1, port1, ipaddr2.to_s
   end
 
-  #def has?(dpid, port)
-  #  ((@dpid1 == dpid) && (@port1 == port)) ||
-  #    ((@dpid2 == dpid) && (@port2 == port))
-  #end
 end
 
 ### Local variables:
