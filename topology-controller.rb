@@ -19,7 +19,6 @@ class TopologyController < Controller
     @command_line.parse(ARGV.dup)
     @topology = Topology.new(@command_line.view)
     @host_list = {}
-    @flow = []
   end
 
   def switch_ready(dpid)
@@ -48,16 +47,8 @@ class TopologyController < Controller
     elsif packet_in.ipv4?
       return if packet_in.ipv4_saddr.to_s == '0.0.0.0'
       if @host_list[packet_in.ipv4_saddr.to_s].nil?
-        @host_list[packet_in.ipv4_saddr.to_s] = dpid
+        @host_list[packet_in.ipv4_saddr.to_s] = packet_in.macsa.to_s
         @topology.add_host dpid, packet_in
-      else
-        i = 0
-        @flow = @topology.route packet_in
-        loop do
-          add_flow(@flow[i][0], packet_in, @flow[i][1], @flow[i][2])
-          break if @flow[i][0] == dpid
-          i = i + 1
-        end
       end
     end
   end
