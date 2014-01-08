@@ -42,9 +42,9 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-		if packet_in.ipv4? && (packet_in.ipv4_saddr.to_s != '0.0.0.0') 
-			@topology.add_host_by packet_in
-		end
+    if packet_in.ipv4? && (packet_in.ipv4_saddr.to_s != '0.0.0.0')
+      @topology.add_host_by packet_in
+    end
     @topology.add_link_by dpid, packet_in
   end
 
@@ -52,9 +52,7 @@ class TopologyController < Controller
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
-			if dpid.class == Fixnum
-      	send_lldp dpid, ports
-			end	
+      send_lldp dpid, ports if dpid.class == Fixnum
     end
   end
 

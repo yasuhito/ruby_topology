@@ -55,12 +55,12 @@ class Topology
     notify_observers self
   end
 
-	def add_host_by(packet_in)
-		ip_saddr = packet_in.ipv4_saddr
-		@ports[ip_saddr] += [ip_saddr]
-		changed
-		notify_observers self
-	end
+  def add_host_by(packet_in)
+    ip_saddr = packet_in.ipv4_saddr
+    @ports[ip_saddr] += [ip_saddr]
+    changed
+    notify_observers self
+  end
 
   private
 
