@@ -61,6 +61,7 @@ class Topology
   def add_host(dpid, packet_in)
     fail 'Not an IPV4 packet!' unless packet_in.ipv4?
     ip = packet_in.ipv4_saddr.to_s
+    return if ip == '0.0.0.0'
     @hosts[ip] = 100
     begin
       maybe_add_link Link.new(dpid, packet_in)
