@@ -6,12 +6,27 @@ require 'pio/lldp'
 # Edges between two switches.
 #
 class Link
+<<<<<<< HEAD
+  attr_reader :dpid1
+  attr_reader :dpid2
+  attr_reader :port1
+  attr_reader :port2
+  attr_reader :mac1
+  attr_reader :mac2
+
+  def initialize(dpid, packet_in)
+    lldp = Pio::Lldp.read(packet_in.data)
+    @dpid1 = lldp.dpid
+    @dpid2 = dpid
+    @port1 = lldp.port_number
+    @port2 = packet_in.in_port
+    @mac1 = packet_in.macsa.to_s
+    @mac2 = packet_in.macda.to_s
+=======
   attr_reader :dpid_a
   attr_reader :dpid_b
   attr_reader :port_a
   attr_reader :port_b
-  attr_reader :mac1
-  attr_reader :mac2
 
   def initialize(dpid, packet_in)
     lldp = Pio::Lldp.read(packet_in.data)
@@ -19,8 +34,7 @@ class Link
     @dpid_b = dpid
     @port_a = lldp.port_number
     @port_b = packet_in.in_port
-    @mac1 = packet_in.macsa.to_s
-    @mac2 = packet_in.macda.to_s
+>>>>>>> upstream/develop
   end
 
   def ==(other)

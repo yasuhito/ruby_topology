@@ -13,11 +13,18 @@ module View
     end
 
     def update(topology)
+<<<<<<< HEAD
       graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
       nodes = add_nodes(graphviz, topology)
       add_edges(graphviz, topology, nodes)
       add_hosts(graphviz, topology, nodes)
       graphviz.output(png: @output)
+=======
+      @nodes.clear
+      add_nodes(topology)
+      add_edges(topology)
+      @graphviz.output(png: @output)
+>>>>>>> upstream/develop
     end
 
     private
