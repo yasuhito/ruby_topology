@@ -7,9 +7,7 @@ module View
   #
   class Graphviz
     def initialize(output = './topology.png')
-      @nodes = {}
       @output = File.expand_path(output)
-      @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
     end
 
     def update(topology)
@@ -22,16 +20,18 @@ module View
 
     private
 
-    def add_nodes(topology)
-      topology.each_switch do |dpid, ports|
-        @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
+    def add_nodes(graphviz, topology)
+      switch ={}
+			topology.each_switch do |dpid, ports|
+        switch[dpid] = graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
       end
+			switch
     end
 
-    def add_edges(topology)
+    def add_edges(graphviz, topology, switch)
       topology.each_link do |each|
-        node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
-        @graphviz.add_edges node_a, node_b if node_a && node_b
+        node_a, node_b = switch[each.dpid_a], switch[each.dpid_b]
+        graphviz.add_edges node_a, node_b if node_a && node_b
       end
     end
 
