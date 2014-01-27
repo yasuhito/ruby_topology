@@ -10,6 +10,8 @@ class Link
   attr_reader :dpid2
   attr_reader :port1
   attr_reader :port2
+  attr_reader :mac1
+  attr_reader :mac2
 
   def initialize(dpid, packet_in)
     lldp = Pio::Lldp.read(packet_in.data)
@@ -17,6 +19,8 @@ class Link
     @dpid2 = dpid
     @port1 = lldp.port_number
     @port2 = packet_in.in_port
+    @mac1 = packet_in.macsa.to_s
+    @mac2 = packet_in.macda.to_s
   end
 
   def ==(other)

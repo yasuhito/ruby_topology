@@ -14,6 +14,7 @@ module View
       graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
       nodes = add_nodes(graphviz, topology)
       add_edges(graphviz, topology, nodes)
+      add_hosts(graphviz, topology, nodes)
       graphviz.output(png: @output)
     end
 
@@ -31,6 +32,19 @@ module View
       topology.each_link do |each|
         if switch[each.dpid1] && switch[each.dpid2]
           graphviz.add_edges switch[each.dpid1], switch[each.dpid2]
+        end
+      end
+    end
+
+    def add_hosts(graphviz, topology, switch)
+      host = {}
+      topology.each_host do |each|
+        host[each.ipaddr2.to_s] = graphviz.add_nodes(each.ipaddr2.to_s)
+      end
+      host
+      topology.each_host do |each|
+        if switch[each.dpid1]
+          graphviz.add_edges switch[each.dpid1], host[each.ipaddr2.to_s]
         end
       end
     end
