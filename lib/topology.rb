@@ -14,10 +14,12 @@ class Topology
 
   def_delegator :@ports, :each_pair, :each_switch
   def_delegator :@links, :each, :each_link
+  def_delegator :@hosts, :each, :each_host
 
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
+    @hosts = Hash.new { [].freeze }
     add_observer view
   end
 
@@ -56,12 +58,24 @@ class Topology
     notify_observers self
   end
 
+  def add_host(dpid, packet_in)
+    fail 'Not an IPV4 packet!' unless packet_in.ipv4?
+    ip = packet_in.ipv4_saddr.to_s
+    @hosts[ip] = 100
+    begin
+      maybe_add_link Link.new(dpid, packet_in)
+    rescue
+      return
+    end
+    changed
+    notify_observers self
+  end
+
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    @links.sort!
   end
 
   def delete_link_by(port)
