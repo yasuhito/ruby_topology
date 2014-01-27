@@ -34,7 +34,7 @@ module View
       topology.each_link do |each|
         node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
         @graphviz.add_edges node_a, node_b if node_a && node_b
-        if each.port_a == 100
+        if each.port_a == 100        
           @graphviz.add_edges node_b, node_a if node_b && node_a
         end
       end
