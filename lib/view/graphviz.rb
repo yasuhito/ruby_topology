@@ -21,11 +21,11 @@ module View
     private
 
     def add_nodes(graphviz, topology)
-      switch ={}
-			topology.each_switch do |dpid, ports|
+      switch = {}
+      topology.each_switch do |dpid, ports|
         switch[dpid] = graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
       end
-			switch
+      switch
     end
 
     def add_edges(graphviz, topology, switch)
@@ -40,7 +40,6 @@ module View
       topology.each_host do |each|
         host[each.ipaddr2.to_s] = graphviz.add_nodes(each.ipaddr2.to_s)
       end
-      host
       topology.each_host do |each|
         if switch[each.dpid1]
           graphviz.add_edges switch[each.dpid1], host[each.ipaddr2.to_s]

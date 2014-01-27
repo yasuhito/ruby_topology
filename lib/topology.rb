@@ -64,7 +64,7 @@ class Topology
 
   def add_host_by(dpid, packet_in)
     host = Host.new(dpid, packet_in)
-    #unless @hosts.include?(host)
+    # unless @hosts.include?(host)
     unless get_host(packet_in.ipv4_saddr.to_s)
       @hosts << host
       @hosts.sort!
@@ -95,8 +95,8 @@ class Topology
     end
     return result
   end
-  
-  
+ 
+ 
   private
 
   def maybe_add_link(link)
@@ -121,4 +121,3 @@ end
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
-
