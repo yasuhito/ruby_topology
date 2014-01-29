@@ -72,8 +72,7 @@ class Topology
       notify_observers self
     end
   end
-  
-  # dpidからMACアドレスを取得
+
   def get_mac(dpid)
     result = nil
     @links.each do | each |
@@ -82,9 +81,9 @@ class Topology
         break
       end
     end
-    return result
+    result
   end
-  # IPアドレスからホストを取得
+
   def get_host(address)
     result = nil
     @hosts.each do | each |
@@ -93,10 +92,9 @@ class Topology
         break
       end
     end
-    return result
+    result
   end
- 
- 
+
   private
 
   def maybe_add_link(link)
