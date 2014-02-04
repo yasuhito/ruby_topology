@@ -14,10 +14,12 @@ class Topology
 
   def_delegator :@ports, :each_pair, :each_switch
   def_delegator :@links, :each, :each_link
+  def_delegator :@hosts, :each_pair, :each_host
 
   def initialize(view)
     @ports = Hash.new { [].freeze }
     @links = []
+    @hosts = {}
     add_observer view
   end
 
@@ -46,7 +48,7 @@ class Topology
   end
 
   def add_link_by(dpid, packet_in)
-    fail 'Not an LLDP packet!' unless packet_in.lldp?
+#    fail 'Not an LLDP packet!' unless packet_in.lldp?
     begin
       maybe_add_link Link.new(dpid, packet_in)
     rescue
@@ -56,12 +58,16 @@ class Topology
     notify_observers self
   end
 
+  def add_host(dpid, packet_in)
+    ip = packet_in.ipv4_saddr.to_s
+    @hosts[ip] = 10_000 unless is_allzero(ip)
+  end
+
   private
 
   def maybe_add_link(link)
     fail 'The link already exists.' if @links.include?(link)
     @links << link
-    @links.sort!
   end
 
   def delete_link_by(port)
@@ -73,6 +79,20 @@ class Topology
     end
     notify_observers self
   end
+
+  def is_allzero(ip)
+    bit = ip.split('.')
+    b1 = (bit[0].to_i == 0)
+    b2 = (bit[1].to_i == 0)
+    b3 = (bit[2].to_i == 0)
+    b4 = (bit[3].to_i == 0)
+    if b1 && b2 && b3 && b4
+      return true
+    else
+      return false
+    end
+  end
+
 end
 
 ### Local variables:
