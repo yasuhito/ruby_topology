@@ -42,7 +42,7 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
+    @topology.add_port_host packet_in if packet_in.ipv4?
     @topology.add_link_by dpid, packet_in
   end
 
@@ -50,7 +50,7 @@ class TopologyController < Controller
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
-      send_lldp dpid, ports
+      send_lldp dpid, ports unless dpid.class == String
     end
   end
 
