@@ -3,7 +3,6 @@ $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), 'lib')
 
 require 'rubygems'
 require 'bundler/setup'
-
 require 'command-line'
 require 'topology'
 require 'trema'
@@ -13,12 +12,13 @@ require 'trema-extensions/port'
 # This controller collects network topology information using LLDP.
 #
 class TopologyController < Controller
-  periodic_timer_event :flood_lldp_frames, 1
+  periodic_timer_event :flood_lldp_frames, 3
 
   def start
     @command_line = CommandLine.new
     @command_line.parse(ARGV.dup)
     @topology = Topology.new(@command_line.view)
+    @host_list = {}
   end
 
   def switch_ready(dpid)
@@ -42,11 +42,31 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
-    @topology.add_link_by dpid, packet_in
+    if packet_in.lldp?
+      @topology.add_link_by dpid, packet_in
+    elsif packet_in.ipv4?
+      return if packet_in.ipv4_saddr.to_s == '0.0.0.0'
+      if @host_list[packet_in.ipv4_saddr.to_s].nil?
+        @host_list[packet_in.ipv4_saddr.to_s] = packet_in.macsa.to_s
+        @topology.add_host dpid, packet_in
+      end
+    end
   end
 
   private
+
+  def add_flow(dpid, message, port, in_port)
+    send_flow_mod_add(
+      dpid,
+      hard_timeout: 100,
+      match: Match.new(
+      in_port: in_port,
+      nw_src: message.ipv4_saddr,
+      nw_dst: message.ipv4_daddr
+      ),
+      actions: Trema::SendOutPort.new(port)
+    )
+  end
 
   def flood_lldp_frames
     @topology.each_switch do |dpid, ports|
@@ -75,6 +95,7 @@ class TopologyController < Controller
       Pio::Lldp.new(dpid: dpid, port_number: port_number).to_binary
     end
   end
+
 end
 
 ### Local variables:
