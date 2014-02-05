@@ -12,11 +12,11 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-    lldp = Pio::Lldp.read(packet_in.data)
-    @dpid_a = lldp.dpid
-    @dpid_b = dpid
-    @port_a = lldp.port_number
-    @port_b = packet_in.in_port
+    if packet_in.lldp?
+      init_lldp(dpid, packet_in)
+    elsif packet_in.ipv4?
+      init_ipv4(dpid, packet_in)
+    end
   end
 
   def ==(other)
@@ -37,6 +37,23 @@ class Link
   def has?(dpid, port)
     ((@dpid_a == dpid) && (@port_a == port)) ||
       ((@dpid_b == dpid) && (@port_b == port))
+  end
+
+  private
+
+  def init_lldp(dpid, packet_in)
+    lldp = Pio::Lldp.read(packet_in.data)
+    @dpid1 = lldp.dpid
+    @dpid2 = dpid
+    @port1 = lldp.port_number
+    @port2 = packet_in.in_port
+  end
+
+  def init_ipv4(dpid, packet_in)
+    @dpid1 = packet_in.ipv4_saddr.to_s
+    @dpid2 = dpid
+    @port1 = 'host'
+    @port2 = packet_in.in_port
   end
 end
 
