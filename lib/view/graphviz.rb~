@@ -12,6 +12,7 @@ module View
       @graphviz = GraphViz.new(:G, use: 'neato', overlap: false, splines: true)
     end
 
+
     def update(topology)
       @nodes.clear
       add_nodes(topology)
