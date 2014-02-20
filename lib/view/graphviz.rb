@@ -25,12 +25,20 @@ module View
       topology.each_switch do |dpid, ports|
         @nodes[dpid] = @graphviz.add_nodes(dpid.to_hex, 'shape' => 'box')
       end
+      topology.each_host do |host, ports|
+        @nodes[host] = @graphviz.add_nodes(host, 'shape' => 'oval')
+      end
     end
 
     def add_edges(topology)
       topology.each_link do |each|
         node_a, node_b = @nodes[each.dpid_a], @nodes[each.dpid_b]
-        @graphviz.add_edges node_a, node_b if node_a && node_b
+        if each.port_a == 100
+          @graphviz.add_edges node_a, node_b if node_a && node_b
+          @graphviz.add_edges node_b, node_a if node_b && node_a
+        else
+          @graphviz.add_edges node_a, node_b if node_a && node_b
+        end
       end
     end
   end
