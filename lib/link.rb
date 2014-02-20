@@ -12,18 +12,29 @@ class Link
   attr_reader :port_b
 
   def initialize(dpid, packet_in)
-    lldp = Pio::Lldp.read(packet_in.data)
-    @dpid_a = lldp.dpid
+    if packet_in.lldp?
+      lldp = Pio::Lldp.read(packet_in.data)
+      @dpid_a = lldp.dpid
+      @dpid_b = dpid
+      @port_a = lldp.port_number
+      @port_b = packet_in.in_port
+    elsif packet_in.ipv4?
+      ipv4_correct(dpid, packet_in)
+    end
+  end
+
+  def ipv4_correct(dpid, packet_in)
+    @dpid_a = packet_in.ipv4_saddr.to_s
     @dpid_b = dpid
-    @port_a = lldp.port_number
+    @port_a = 100
     @port_b = packet_in.in_port
   end
 
   def ==(other)
     (@dpid_a == other.dpid_a) &&
-      (@dpid_b == other.dpid_b) &&
-      (@port_a == other.port_a) &&
-      (@port_b == other.port_b)
+    (@dpid_b == other.dpid_b) &&
+    (@port_a == other.port_a) &&
+    (@port_b == other.port_b)
   end
 
   def <=>(other)
@@ -38,8 +49,8 @@ class Link
     ((@dpid_a == dpid) && (@port_a == port)) ||
       ((@dpid_b == dpid) && (@port_b == port))
   end
-end
 
+end
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
