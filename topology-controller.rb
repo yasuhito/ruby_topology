@@ -3,7 +3,6 @@ $LOAD_PATH.unshift File.expand_path(File.join File.dirname(__FILE__), 'lib')
 
 require 'rubygems'
 require 'bundler/setup'
-
 require 'command-line'
 require 'topology'
 require 'trema'
@@ -13,7 +12,7 @@ require 'trema-extensions/port'
 # This controller collects network topology information using LLDP.
 #
 class TopologyController < Controller
-  periodic_timer_event :flood_lldp_frames, 1
+  periodic_timer_event :flood_lldp_frames, 2
 
   def start
     @command_line = CommandLine.new
@@ -42,8 +41,13 @@ class TopologyController < Controller
   end
 
   def packet_in(dpid, packet_in)
-    return unless packet_in.lldp?
-    @topology.add_link_by dpid, packet_in
+    if packet_in.lldp?
+      @topology.add_link_by dpid, packet_in
+    elsif  packet_in.ipv4?
+      ip = packet_in.ipv4_saddr.to_s
+      return if ip == '0.0.0.0'
+      @topology.add_host dpid, packet_in
+    end
   end
 
   private
